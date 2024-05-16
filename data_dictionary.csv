@@ -1,0 +1,47 @@
+file,field,explanation
+captions_and_labels.csv,file_id,"Primary key for each row. Each row contains one image, with its caption and corresponding chunks and labels."
+captions_and_labels.csv,file,"Name of the image file. The file is in the folder images, in the subfolder that starts with the first six characters of the file name (i.g. the path to that file is f""{file[:4]}/{file[:6]}/{file}""). For example, the path to the image ""PMC10000323_jbsr-107-1-3012-g3_undivided_1_1.jpg"" is ""PMC1/PMC100/PMC10000323_jbsr-107-1-3012-g3_undivided_1_1.jpg"". The last part of the name before .jpg refer to the reference present in the caption, the sub-image order and the total amount of sub-images in a given image. For example, if the file corresponds to figure b (according to the caption) out of 4 sub-images present in an article image, the last part of the file name will be ""b_2_4.jgp""."
+captions_and_labels.csv,main_image,"Id from the original image (it corresponds to image_id from case_images.parquet). Files that were created as splits from an image file in a given article will have different file_id and file, and the same main_image value."
+captions_and_labels.csv,patient_id,"Id of the patient, created combining the PMC of the article plus a sequential number."
+captions_and_labels.csv,license,"License of the article. The possible values are CC BY, CC BY-NC-ND, CC BY-NC-SA, CC BY-NC, NO-CC CODE, CC BY-ND and CC BY-SA. NO-CC CODE means that the article is open access but the actual license cannot be retrieved through the API, it has to be done manually."
+captions_and_labels.csv,caption,"It is the caption that corresponds to the image. If the image is a part of the original image present in the article, this field includes the corresponding part of the whole caption. In cases where the caption was split, there may be some extra special characters or truncated sentences, but this in no case affects the labels that are assigned to each image."
+captions_and_labels.csv,chunk,List of chunks that were identified as having relevant clinical data.
+captions_and_labels.csv,generic_label,List of labels that were assigned to each extracted chunk. They can be considered as label with a low level of granularity.
+captions_and_labels.csv,pathology_test,"If any chunk from the chunk list is of this type and has a normalized term, such normalized term is included in this column."
+captions_and_labels.csv,image_type,"If any chunk from the chunk list is of this type and has a normalized term, such normalized term is included in this column."
+captions_and_labels.csv,image_technique,"If any chunk from the chunk list is of this type and has a normalized term, such normalized term is included in this column."
+captions_and_labels.csv,image_view,"If any chunk from the chunk list is of this type and has a normalized term, such normalized term is included in this column."
+captions_and_labels.csv,site,"If any chunk from the chunk list is of this type and has a normalized term, such normalized term is included in this column."
+captions_and_labels.csv,position,"If any chunk from the chunk list is of this type and has a normalized term, such normalized term is included in this column."
+captions_and_labels.csv,laterality,"If any chunk from the chunk list is of this type and has a normalized term, such normalized term is included in this column."
+captions_and_labels.csv,finding,"If any chunk from the chunk list is of this type and has a normalized term, such normalized term is included in this column."
+captions_and_labels.csv,negation,"If any chunk from the chunk list is of this type and has a normalized term, such normalized term is included in this column."
+case_images.parquet,article_id,PMCID of the article.
+case_images.parquet,case_id,"Id of the patient, created combining the PMC of the article plus a sequential number."
+case_images.parquet,tag,File tag present assigned to the image in PubMed (e.g. 'ARSR-12-0031F1').
+case_images.parquet,caption,Image caption.
+case_images.parquet,file,Original name of the file in the article.
+case_images.parquet,image_id,Id of the image downloaded from PMC. The ID combines patient ID + file name.
+case_images.parquet,text_references,"Parts of the case reports that refer to a given image (taken from the content of the text, and not from the captions)."
+abstracts.parquet,article_id,PMCID of the article.
+abstracts.parquet,abstract,Abstract of the article.
+metadata.parquet,article_id,PMCID of the article.
+metadata.parquet,title,Self-explanatory.
+metadata.parquet,authors,Self-explanatory.
+metadata.parquet,journal,Self-explanatory.
+metadata.parquet,journal_detail,Other details taken from metadata for article citation.
+metadata.parquet,year,Self-explanatory.
+metadata.parquet,doi ,Self-explanatory.
+metadata.parquet,pmid ,Self-explanatory.
+metadata.parquet,pmcid ,Self-explanatory.
+metadata.parquet,mesh_terms ,Self-explanatory.
+metadata.parquet,major_mesh_terms,MeSH terms marked as major.
+metadata.parquet,keywords,Keywords are taken from the keywords section that is sometimes available in the content of the article.
+metadata.parquet,link,Link to the article.
+metadata.parquet,license,"License of the article. The possible values are CC BY, CC BY-NC-ND, CC BY-NC-SA, CC BY-NC, NO-CC CODE, CC BY-ND and CC BY-SA. NO-CC CODE means that the article is open access but the actual license cannot be retrieved through the API, it has to be done manually."
+metadata.parquet,case_amount ,Amount of cases included in the article.
+cases.parquet,article_id,PMCID of the article.
+cases.parquet,case_id,"Id of the patient, created combining the PMC of the article plus a sequential number."
+cases.parquet,case_text,Self-explanatory.
+cases.parquet,age,Age of the patient. Ages lower than 1 y.o. are assigned 0 as age.
+cases.parquet,gender,"Gender of the patient. It can be either Female, Male, Transgender or Unknown."

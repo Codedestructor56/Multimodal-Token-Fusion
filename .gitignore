@@ -1,0 +1,6 @@
+models/
+env/
+LPMC/
+data/
+ct_scan_data/
+__pycache__/
