@@ -2,7 +2,7 @@ import torch.nn as nn
 from data import *
 from data_prep import *
 import math
-from transformers import ViTConfig, BertConfig, VisionTextDualEncoderConfig, VisionTextDualEncoderModel
+
 
 class RotaryEmbeddings(nn.Module):
     def __init__(self, device:str, theta: int =10000):
@@ -135,13 +135,12 @@ class PatchEmbeddings(nn.Module):
         for b in range(batch_size):
             for h in range(0, height, self.patch_size):
                 for w in range(0, width, self.patch_size):
-                    patch = image[b,h:h+self.patch_size, w:w+self.patch_size].float()
+                    patch = image[b,h:h+self.patch_size, w:w+self.patch_size].float() 
                     patches.append(patch)
 
         return torch.stack(patches, dim = 0).reshape(batch_size, -1, self.patch_size, self.patch_size)
 
     def forward(self, x:torch.Tensor)->torch.tensor:
-        print(f"Size in patch: {x.size()}")
         batch_size, patch_height, patch_width = x.size()
         #print(patch_height, patch_width)
         assert patch_width == patch_height, "Uniform patch size should be provided"
@@ -154,30 +153,12 @@ class PatchEmbeddings(nn.Module):
         
         pe = pe.repeat(batch_size, 1, 1).to(self.device)
         patches += pe
+        
         del pe, positions, div_term
         torch.cuda.empty_cache()
         return patches
 
 
-device = "cpu"
-#tokenizer = BertTokenizer.from_pretrained("google-bert/bert-base-uncased")
-
-tokenizer = AutoTokenizer.from_pretrained("meta-llama/Meta-Llama-3-8B")
-
-params = Parameters(device = device, use_cache = False, num_heads = 16, thresh = None, emb_dim = 256, max_seq_len = 256
-                    ,ffn_hidden_dim = 512, batch_size = 8, div_batch = 8, 
-                    tokenizer = tokenizer, vocab_size = tokenizer.vocab_size+1,
-                    max_im_width = 480, max_im_height = 480, num_layers = 1, patch_size = 16, dataset_name = "ct_scan_data",
-                    token_thresh = 0.2, imp_layer_hidden = 512)
-
-dataloader = DataLoader(
-    Medical_Data(params), 
-    batch_size=params.batch_size, 
-    collate_fn=Medical_Data(params).collate_fn
-)
-
-first_load = next(iter(dataloader))
-pt = PatchEmbeddings(params)
 
 
 

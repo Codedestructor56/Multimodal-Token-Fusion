@@ -6,7 +6,8 @@ from dataclasses import dataclass
 from data_prep import *
 from dataclasses import dataclass
 from typing import Optional,List
-from transformers import BertTokenizer, AutoTokenizer
+from transformers import BertTokenizer, AutoTokenizer, AutoProcessor
+
 
 @dataclass
 class Parameters:
