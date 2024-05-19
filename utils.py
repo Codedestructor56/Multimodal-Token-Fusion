@@ -140,20 +140,19 @@ class PatchEmbeddings(nn.Module):
 
         return torch.stack(patches, dim = 0).reshape(batch_size, -1, self.patch_size, self.patch_size)
 
-    def forward(self, x:torch.Tensor)->torch.tensor:
-        batch_size, patch_height, patch_width = x.size()
+    def forward(self, x:torch.Tensor)->torch.tensor: 
+        batch_size, seq_len, patch_height, patch_width = x.size()
         #print(patch_height, patch_width)
-        assert patch_width == patch_height, "Uniform patch size should be provided"
-        patches = self.linear(x.view(batch_size, -1, patch_width * patch_height)) 
+        assert patch_width == patch_height, "Uniform patch size should be provided" 
+        patches = self.linear(x.view(batch_size, seq_len, -1, patch_width * patch_height).to(torch.float32).squeeze(2)) 
         positions = torch.arange(patches.shape[1], dtype=torch.float).unsqueeze(1)
         pe = torch.zeros(patches.shape[1], self.emb_dim)
         div_term = torch.exp(torch.arange(0, self.emb_dim, 2).float() * (-math.log(10000.0) / self.emb_dim))
         pe[:, 0::2] = torch.sin(positions * div_term)
         pe[:, 1::2] = torch.cos(positions * div_term) 
         
-        pe = pe.repeat(batch_size, 1, 1).to(self.device)
+        pe = pe.repeat(batch_size, 1, 1, 1).squeeze(1).to(self.device)
         patches += pe
-        
         del pe, positions, div_term
         torch.cuda.empty_cache()
         return patches

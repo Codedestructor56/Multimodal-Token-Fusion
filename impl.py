@@ -97,9 +97,6 @@ class Transformer(nn.Module):
             
                     del out
                     torch.cuda.empty_cache()
-
-                    del accumulated_output
-
             else:
                 assert res.shape[1]==1, "Pass one token at a time"
                 res = self.norm(res)
@@ -119,7 +116,8 @@ class TokenFusion(nn.Module):
         self.thresh = params.thresh
         self.norm = RMSnorm(self.emb_dim, self.device, self.thresh)
         self.vocab_size = params.vocab_size
-        self.imp_layer1 = nn.Linear(self.vocab_size, self.hidden_dim).to(self.device)
+        self.seq_len = params.max_seq_len
+        self.imp_layer1 = nn.Linear(self.seq_len, self.hidden_dim).to(self.device)
         self.imp_layer2 = nn.Linear(self.hidden_dim, 1).to(self.device)
         self.sigmoid = nn.Sigmoid()
         self.transformer = Transformer(params)
@@ -128,9 +126,12 @@ class TokenFusion(nn.Module):
     def forward(self, x:Optional[torch.Tensor], y:Optional[torch.Tensor], cur_pos: Optional[int], im_inc: bool):
         if cur_pos is None:
             x, y = self.transformer(x, cur_pos, False), self.transformer(y, cur_pos, im_inc)
-            seq_len1, seq_len2 = x.shape[1], y.shape[1]
+            x = torch.stack(x, dim=0).squeeze(1)
+            y = torch.stack(y, dim=0).squeeze(1)
+            seq_len1, seq_len2 = x.shape[1], y.shape[1] 
             min_seq_len = min(seq_len1, seq_len2)
             x_fuse, y_fuse, x_rem, y_rem = x[:,:min_seq_len,:], y[:,:min_seq_len,:], x[:,min_seq_len:,:], y[:,min_seq_len:,:]
+          
             token_scores_x = self.sigmoid(self.imp_layer2(self.imp_layer1(x_fuse)))
             token_scores_y = self.sigmoid(self.imp_layer2(self.imp_layer1(y_fuse)))
             mask_x = (token_scores_x > self.token_thresh).int()

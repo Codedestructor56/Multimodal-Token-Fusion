@@ -102,7 +102,7 @@ def infer(tokenizer, prompts: list[str], params: Parameters, model: TokenFusion 
 
     for cur_pos in tqdm(range(1, patched_images.size(1)), desc='Generating tokens'):
         with torch.no_grad():
-            logits = model.forward(None, patched_images[:, cur_pos-1:cur_pos].squeeze(), cur_pos, True)
+            logits = model.forward(None, patched_images[:, cur_pos-1:cur_pos], cur_pos, True)
         if temp > 0:
             probs = torch.softmax(logits[:, -1] / temp, dim=-1)
             next_token = _sample_top_p(probs, top_p)

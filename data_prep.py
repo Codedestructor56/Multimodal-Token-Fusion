@@ -72,6 +72,7 @@ class MedicalDatasetCreator():
 
     def load_dataset(self):
         self.loaded_df = pd.read_csv(os.path.join(self.dataset_name, "info_dataframe.csv"))
+        self.loaded_df.dropna(inplace = True)
         self.dataset_length = self.loaded_df.shape[0]
 
     def load_row(self, index: int = 0):
